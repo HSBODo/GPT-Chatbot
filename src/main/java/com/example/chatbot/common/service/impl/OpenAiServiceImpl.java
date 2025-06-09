@@ -172,7 +172,7 @@ public class OpenAiServiceImpl implements OpenAiService {
             ResponseEntity<String> responseEntity = restTemplate.exchange(apiUrl.toString(),HttpMethod.GET,requestEntity,String.class);
 
             OpenAiThreadRun openAiThreadRun = mapper.readValue(responseEntity.getBody(), OpenAiThreadRun.class);
-
+            log.info("{} {}",threadId,openAiThreadRun.getStatus());
             if (openAiThreadRun.getStatus().equals("completed")) return true;
 
             return false;
