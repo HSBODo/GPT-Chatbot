@@ -52,7 +52,7 @@ logging:
             bind: TRACE
 openai:
   #  key: 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
-  key: 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
+  key: ${OPENAI_API_KEY}
 
 
 
