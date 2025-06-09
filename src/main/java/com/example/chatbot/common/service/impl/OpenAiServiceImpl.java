@@ -21,8 +21,7 @@ public class OpenAiServiceImpl implements OpenAiService {
     private RestTemplate restTemplate = new RestTemplate();
     private ObjectMapper mapper = new ObjectMapper()
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-    @Value("${openai.key}")
-    private String OPENAI_API_KEY;
+    private String OPENAI_API_KEY ="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";
 //    private final String ASSISTANT_ID = "asst_s9UCWodjOKCDMnkydM3Brd0T"; // 비앤빛
     private final String ASSISTANT_ID = "asst_u90wooH9QQcm59K64Q0qILBH";
 
