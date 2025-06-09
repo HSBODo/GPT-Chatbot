@@ -16,9 +16,10 @@ import org.springframework.web.socket.server.standard.ServerEndpointExporter;
 @EnableWebSocket
 @Configuration
 public class WebSocketConfig implements WebSocketConfigurer {
-
+    @Autowired
+    private OpenAiService openAiService;
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        registry.addHandler(new ChatWebSocketHandler(new OpenAiServiceImpl()),"/chat").setAllowedOrigins("*");
+        registry.addHandler(new ChatWebSocketHandler(openAiService),"/chat").setAllowedOrigins("*");
     }
 }

@@ -14,4 +14,6 @@ public interface OpenAiService {
     OpenAiMessageResponse getMessage(String threadId);
 
     boolean threadCompletions(String threadId, String runId);
+
+    String sendChatMessage(String userMessage);
 }

@@ -1,0 +1,7 @@
+openai:
+#  key: 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
+  key: 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
+server:
+  port: 8000
+
+

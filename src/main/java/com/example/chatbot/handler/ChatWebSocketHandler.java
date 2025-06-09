@@ -51,12 +51,14 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
         boolean isComplete = false;
         // 수신한 메시지를 다시 클라이언트에게 전송합니다.
         String threadId = chatRoomSessionMap.get(session.getId());
-        log.info("tid{}",threadId);
+        log.info("tid {}",threadId);
         openAiService.sendMessage(threadId, message.getPayload());
 
         OpenAiThreadRun openAiThreadRun = openAiService.threadRun(threadId);
+
         while (!isComplete) {
             isComplete = openAiService.threadCompletions(threadId, openAiThreadRun.getId());
+            log.info("{}",isComplete);
         }
 
         OpenAiMessageResponse message1 = openAiService.getMessage(threadId);
