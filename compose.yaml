@@ -1,0 +1,38 @@
+services:
+  mysql:
+    image: 'mysql:8.0'
+    container_name: mysql-container-AiChat
+    environment:
+      - 'MYSQL_DATABASE=AiChat'
+      - 'MYSQL_PASSWORD=AiChat2025!'
+      - 'MYSQL_ROOT_PASSWORD=AiChat2025!'
+      - 'MYSQL_USER=AiChat'
+    ports:
+      - '13306:3306'
+    volumes:
+      - mysql_data:/var/lib/mysql   # 호스트의 볼륨을 컨테이너의 MySQL 데이터 디렉토리에 마운트
+  redis:
+    image: 'redis:latest'
+    ports:
+      - '16379:6379'
+  spring-app_prod:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: spring_app_prod_AiChat
+    environment:
+      - 'SPRING_DATASOURCE_URL=jdbc:mysql://mysql-container-AiChat:3306/AiChat'
+      - 'SPRING_DATASOURCE_USERNAME=AiChat'
+      - 'SPRING_DATASOURCE_PASSWORD=AiChat2025!'
+      - 'SPRING_DATA_REDIS_HOST=redis'
+      - 'SPRING_DATA_REDIS_PORT=16379'
+    ports:
+      - "18080:8080"
+    depends_on:
+      - redis
+      - mysql
+    volumes:
+      - ./images:/images
+      - ./uploads:/uploads
+volumes:
+  mysql_data:
