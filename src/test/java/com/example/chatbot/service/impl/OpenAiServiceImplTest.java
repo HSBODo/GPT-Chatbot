@@ -3,12 +3,10 @@ package com.example.chatbot.service.impl;
 import com.example.chatbot.dto.OpenAiMessageResponse;
 import com.example.chatbot.dto.OpenAiThread;
 import com.example.chatbot.dto.OpenAiThreadRun;
-import com.example.chatbot.service.OpenAiService;
+import com.example.chatbot.common.service.OpenAiService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 class OpenAiServiceImplTest {

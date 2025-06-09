@@ -1,10 +1,10 @@
-package com.example.chatbot.service.impl;
+package com.example.chatbot.common.service.impl;
 
+import com.example.chatbot.common.service.OpenAiService;
 import com.example.chatbot.dto.OpenAiMessage;
 import com.example.chatbot.dto.OpenAiMessageResponse;
 import com.example.chatbot.dto.OpenAiThread;
 import com.example.chatbot.dto.OpenAiThreadRun;
-import com.example.chatbot.service.OpenAiService;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;

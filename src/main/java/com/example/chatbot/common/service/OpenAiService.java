@@ -1,4 +1,4 @@
-package com.example.chatbot.service;
+package com.example.chatbot.common.service;
 
 import com.example.chatbot.dto.OpenAiMessageResponse;
 import com.example.chatbot.dto.OpenAiThread;

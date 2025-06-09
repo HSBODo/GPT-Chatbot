@@ -1,4 +1,4 @@
-package com.example.chatbot.controller;
+package com.example.chatbot.controller.kakao;
 
 import com.example.chatbot.dto.OpenAiMessageResponse;
 import com.example.chatbot.dto.OpenAiThread;
@@ -6,7 +6,7 @@ import com.example.chatbot.dto.OpenAiThreadRun;
 import com.example.chatbot.dto.kakao.request.ChatBotRequest;
 import com.example.chatbot.dto.kakao.response.ChatBotExceptionResponse;
 import com.example.chatbot.dto.kakao.response.ChatBotResponse;
-import com.example.chatbot.service.OpenAiService;
+import com.example.chatbot.common.service.OpenAiService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;

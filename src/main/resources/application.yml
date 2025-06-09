@@ -1,7 +1,58 @@
+host:
+  ip: http://223.130.157.107
+  port: 8081
+spring:
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+  data:
+    redis:
+      host: localhost
+      port: 6379
+  jpa:
+    hibernate:
+      #create: ????? ?? ? ?? ?? (DROP + CREATE)
+      #create-drop: create? ??? ????? ??? DROP
+      #update: ???? ??(??DB??? ???? ??)
+      #validate: ???? ???? ?? ??????? ??
+      #none: ???? ??(??? ?? ???? ??? none??? ??.)
+      ddl-auto: update
+      naming:
+        strategy: implicit
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        format_sql: true
+        type: trace
+        highlight_sql: true
+        id:
+          new_generator_mappings: false
+        jdbc:
+          time_zone: Asia/Seoul
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://223.130.157.107:13306/AiChat
+    username: AiChat
+    password: AiChat2025!
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+jwt:
+  secret: f8as1DD943kfdQWPz9v0z0POjrjklj12FZcCxVq713jf8LJK129Kk8LjkHF9971kjlf8f0231kJkl13JHfnc1LL21839ZX7381dhfkqwi74
+logging:
+  level:
+    root: INFO
+    org:
+      hibernate:
+        orm:
+          jdbc:
+            bind: TRACE
 openai:
-#  key: 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
+  #  key: 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
   key: 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
-server:
-  port: 8000
+
 
 
