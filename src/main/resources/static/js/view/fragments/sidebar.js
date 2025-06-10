@@ -26,8 +26,8 @@ $(document).ready(function(){
             menuHtml += `   
                  <div class="nav">
                  
-                    <a class="nav-link" href="/product" >
-                        <div class="sb-nav-link-icon"><i class='fa fa-gift'></i></div>
+                    <a class="nav-link" href="/ai/assistants/prompt" >
+                        <div class="sb-nav-link-icon"><i class="fa fa-comment" aria-hidden="true"></i></div>
                         프롬프트
                     </a>
                     
