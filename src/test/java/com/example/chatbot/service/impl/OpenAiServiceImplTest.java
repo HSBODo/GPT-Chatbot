@@ -1,9 +1,11 @@
 package com.example.chatbot.service.impl;
 
+import com.example.chatbot.dto.AssistantDto;
 import com.example.chatbot.dto.OpenAiMessageResponse;
 import com.example.chatbot.dto.OpenAiThread;
 import com.example.chatbot.dto.OpenAiThreadRun;
 import com.example.chatbot.common.service.OpenAiService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -44,5 +46,10 @@ class OpenAiServiceImplTest {
     void updateAssistantInstructions() {
         boolean b = openAiService.updateAssistantInstructions("gpt-4o-mini","테스트123123");
         System.out.println("b = " + b);
+    }
+
+    @Test
+    void getAssistantInfo() throws JsonProcessingException {
+        AssistantDto asstU90wooH9QQcm59K64Q0qILBH = openAiService.getAssistantInfo("asst_u90wooH9QQcm59K64Q0qILBH");
     }
 }

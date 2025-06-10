@@ -1,10 +1,12 @@
 package com.example.chatbot.common.service.impl;
 
 import com.example.chatbot.common.service.OpenAiService;
+import com.example.chatbot.dto.AssistantDto;
 import com.example.chatbot.dto.OpenAiMessage;
 import com.example.chatbot.dto.OpenAiMessageResponse;
 import com.example.chatbot.dto.OpenAiThread;
 import com.example.chatbot.dto.OpenAiThreadRun;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -107,6 +109,25 @@ public class OpenAiServiceImpl implements OpenAiService {
             log.error("Failed to update assistant instructions: {}", e.getMessage());
             return false;
         }
+    }
+    @Override
+    public AssistantDto getAssistantInfo(String assistantId) throws JsonProcessingException {
+        String url = "https://api.openai.com/v1/assistants/" + assistantId;
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("OpenAI-Beta", "assistants=v2");
+        headers.setBearerAuth(OPENAI_API_KEY);
+
+        HttpEntity<Void> entity = new HttpEntity<>(headers);
+
+        ResponseEntity<String> response = restTemplate.exchange(
+                url,
+                HttpMethod.GET,
+                entity,
+                String.class
+        );
+
+        return mapper.readValue(response.getBody(), AssistantDto.class);
     }
 
     @Override

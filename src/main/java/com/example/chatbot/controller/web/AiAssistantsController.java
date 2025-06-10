@@ -1,10 +1,7 @@
 package com.example.chatbot.controller.web;
 
-import com.example.chatbot.common.service.HttpService;
 import com.example.chatbot.common.service.OpenAiService;
-import com.example.chatbot.domain.assistants.Assistants;
-import com.example.chatbot.domain.assistants.dto.AssistantsDto;
-import com.example.chatbot.domain.assistants.repository.AssistantsRepository;
+import com.example.chatbot.dto.AssistantDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,14 +14,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.Map;
-import java.util.Optional;
 
 @Slf4j
 @RequiredArgsConstructor
 @Controller
 @RequestMapping("ai/assistants")
 public class AiAssistantsController {
-    private final AssistantsRepository assistantsRepository;
     private final OpenAiService openAiService;
 
     @Value("${openai.assistants.id}")
@@ -37,21 +32,9 @@ public class AiAssistantsController {
     @GetMapping("")
     public ResponseEntity getAssistant() {
         try {
-            Optional<Assistants> maybeAssistant = assistantsRepository.findById(ASSISTANT_ID);
-
-            if (maybeAssistant.isEmpty()) {
-                AssistantsDto build = AssistantsDto.builder()
-                        .id("")
-                        .name("")
-                        .model("")
-                        .prompt("")
-                        .build();
-                return ResponseEntity
-                        .ok(build);
-            }
-            Assistants assistants = maybeAssistant.get();
+            AssistantDto assistantInfo = openAiService.getAssistantInfo(ASSISTANT_ID);
             return ResponseEntity
-                    .ok(assistants.toDto());
+                    .ok(assistantInfo);
         }catch (Exception e) {
             log.error("{}",e.getMessage(),e);
             return ResponseEntity
@@ -65,29 +48,14 @@ public class AiAssistantsController {
             String newPrompt = data.get("prompt");
             log.info("Received new prompt: {}", newPrompt);
             String model = "gpt-4o-mini";
-            Optional<Assistants> maybeAssistant = assistantsRepository.findById(ASSISTANT_ID);
 
-            Assistants assistant;
+            boolean updateSuccess = openAiService.updateAssistantInstructions(model, newPrompt);
 
-            boolean isSuccess = openAiService.updateAssistantInstructions(model, newPrompt);
-            if (!isSuccess) throw new RuntimeException("OpenApi 어시스턴트 프롬프트 수정 실패");
+            if (!updateSuccess) throw new RuntimeException("프롬프트 업데이트를 실패하였습니다.");
 
-            if (maybeAssistant.isEmpty()) {
-                assistant = Assistants.builder()
-                        .id(ASSISTANT_ID)
-                        .name("카카오 챗봇")
-                        .prompt(newPrompt)  // 입력받은 prompt로 초기화
-                        .model(model)
-                        .build();
-            } else {
-                assistant = maybeAssistant.get();
-                assistant.updatePrompt(newPrompt);
-            }
+            AssistantDto assistantInfo = openAiService.getAssistantInfo(ASSISTANT_ID);
 
-            assistantsRepository.save(assistant);  // 변경사항 저장
-
-            return ResponseEntity.ok(assistant.toDto());
-
+            return ResponseEntity.ok(assistantInfo);
         } catch (Exception e) {
             log.error("Error updating prompt", e);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();

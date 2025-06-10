@@ -1,19 +1,23 @@
 $(document).ready(function() {
     getAssistant()
     function getAssistant() {
+        $("#loadingOverlay").show();
+
         fetch(`/ai/assistants`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
             }
         })
-            .then(response => {
-                return response.json()
-            }).then(data => {
-            $("#instructionsTextarea").val(data.prompt)
-        })
+            .then(response => response.json())
+            .then(data => {
+                $("#instructionsTextarea").val(data.instructions);
+            })
             .catch(error => {
-                console.log(error)
+                console.error('Error fetching assistant data:', error);
+            })
+            .finally(() => {
+                $("#loadingOverlay").hide();
             });
     }
 })
@@ -21,7 +25,7 @@ $(document).ready(function() {
 function save() {
     if (confirm("프롬프트를 저장하시겠습니까?")) {
         const prompt = $("#instructionsTextarea").val();
-
+        $("#loadingOverlay").show();
         fetch(`/ai/assistants/prompt`, {
             method: 'PATCH',
             headers: {
@@ -37,13 +41,16 @@ function save() {
             })
             .then(data => {
                 // 서버에서 리턴한 prompt를 textarea에 다시 세팅
-                $("#instructionsTextarea").val(data.prompt);
+                $("#instructionsTextarea").val(data.instructions);
                 alert("저장을 완료하였습니다.")
             })
             .catch(error => {
                 alert("저장을 실패하였습니다.")
                 console.error('Error:', error);
-            });
+            })
+            .finally(() => {
+                $("#loadingOverlay").hide();
+            });;
     }
 
 }
