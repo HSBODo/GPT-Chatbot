@@ -3,10 +3,12 @@ package com.example.chatbot.controller.kakao;
 import com.example.chatbot.dto.OpenAiMessageResponse;
 import com.example.chatbot.dto.OpenAiThread;
 import com.example.chatbot.dto.OpenAiThreadRun;
+import com.example.chatbot.dto.kakao.constatnt.button.ButtonAction;
 import com.example.chatbot.dto.kakao.request.ChatBotRequest;
 import com.example.chatbot.dto.kakao.response.ChatBotExceptionResponse;
 import com.example.chatbot.dto.kakao.response.ChatBotResponse;
 import com.example.chatbot.common.service.OpenAiService;
+import com.example.chatbot.dto.kakao.response.property.common.Button;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -68,6 +70,7 @@ public class KakaoChatController {
             String aiResponse = future.get(4500, TimeUnit.MILLISECONDS);
 
             response.addSimpleText(aiResponse);
+            response.addQuickButton(new Button("새로운 대화 시작", ButtonAction.블럭이동,""));
             return response;
 
         } catch (TimeoutException e) {

@@ -53,6 +53,9 @@ logging:
 openai:
   #  key: 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
   key: ${OPENAI_API_KEY}
+  assistants:
+    id: "asst_u90wooH9QQcm59K64Q0qILBH"
+
 
 
 

@@ -16,4 +16,6 @@ public interface OpenAiService {
     boolean threadCompletions(String threadId, String runId);
 
     String sendChatMessage(String userMessage);
+
+    boolean updateAssistantInstructions(String newModel, String newInstructions);
 }

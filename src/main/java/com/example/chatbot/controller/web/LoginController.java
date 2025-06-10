@@ -42,7 +42,7 @@ public class LoginController {
             // 추가적으로 필요한 쿠키 설정을 여기에 추가할 수 있습니다.
             response.addCookie(cookie);
 
-            redirectView.setUrl("/product"); // 홈 페이지로 리다이렉트
+            redirectView.setUrl("/ai/assistants/prompt"); // 홈 페이지로 리다이렉트
 
             return redirectView;
         }catch (Exception e) {

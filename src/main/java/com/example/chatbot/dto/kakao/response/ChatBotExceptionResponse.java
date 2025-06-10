@@ -47,7 +47,7 @@ public class ChatBotExceptionResponse {
 
     public ChatBotResponse createTimeoutResponse(){
         ChatBotResponse chatBotResponse = new ChatBotResponse();
-        chatBotResponse.addSimpleText("시스템에 오류가 발생하였습니다.\n처음부터 다시 시작해주세요.");
+        chatBotResponse.addSimpleText("챗봇 답변을 생성하는데 시간을 초과하였습니다.");
         return chatBotResponse;
     }
 }

@@ -6,7 +6,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
         <meta name="description" content="" />
         <meta name="author" content="" />
-        <title>헤이프룻 - 당첨자 목록</title>
+        <title>AI챗봇 - 프롬프트</title>
         <link href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.min.css" rel="stylesheet" />
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
         <link rel="stylesheet" th:href="@{/css/styles.css}">
@@ -27,6 +27,9 @@
                 z-index: 9999;
             }
 
+            .no-resize {
+                resize: none;
+            }
             #loadingOverlay img {
                 position: absolute;
                 top: 50%;
@@ -65,21 +68,22 @@
                             <div class="card-header" style="display: flex; justify-content: space-between;  align-items: center;">
                                 <div>
                                     <i class="fas fa-table me-1"></i>
-                                    당첨자 목록
-                                </div>
-
-<!--                                <button class="btn btn-primary mx-lg-1 btn-sm" id="addProductModalButton">등록</button>-->
-
-                            </div>
-                            <div class="card m-3 ">
-                                <div class="form-group d-flex align-items-center gap-2 mx-3">
-                                    <select class="form-select form-select-sm w-auto" id="categorySelect" required>
-                                        <option value="">카테고리 선택</option>
-                                    </select>
-                                    <input type="text" class="form-control form-control-sm w-auto" id="searchInput" placeholder="검색어를 입력하세요">
-                                    <button class="btn btn-dark m-3" id="searchButton" type="button">검색</button>
+                                    프롬프트
                                 </div>
                             </div>
+
+                            <div class="card m-3">
+                                <div class="form-group d-flex flex-column align-items-center m-4">
+                                    <textarea
+                                            class="form-control form-control-sm mb-3"
+                                            id="instructionsTextarea"
+                                            rows="4"
+                                            placeholder="프롬프트를 입력하세요"
+                                            style="resize: none; min-height: 450px; max-height: 40vh; width: 60%;"></textarea>
+                                    <button class="btn btn-success mx-auto" id="saveButton" type="button" onclick="save()">저장</button>
+                                </div>
+                            </div>
+
                             <div class="card-body" style="font-size: 10px">
                                 <div class="datatable-container">
 
@@ -122,20 +126,26 @@
                                     <label for="addProductImageFile">이미지 파일:</label>
                                     <input type="file" class="form-control" id="addProductImageFile" accept=".jpg, .jpeg, .png">
                                 </div>
+                                <label for="addProductRank">노출순위:</label>
+                                <input type="text" class="form-control mb-3 number-input" id="addProductRank">
+
                                 <label for="addProductLink">상품명:</label>
                                 <input type="text" class="form-control mb-3" id="addProductName">
 
-                                <label for="addProductPrice">판매가:</label>
+                                <label for="addProductPrice">판매가(원):</label>
                                 <input type="text" class="form-control mb-3 number-input" id="addProductPrice">
 
-                                <label for="addProductPrice">확률(%):</label>
-                                <input type="number" class="form-control mb-3" id="addProductProbability" min="0" max="100">
+                                <label for="addDiscountRate">할인율(%):</label>
+                                <input type="text" class="form-control mb-3 number-input" id="addDiscountRate">
+
+                                <label for="addDiscountPrice">할인가(원):</label>
+                                <input type="text" class="form-control mb-3 number-input" id="addDiscountPrice">
 
                                 <label for="addProductLink">링크:</label>
                                 <input type="text" class="form-control mb-3" id="addProductLink">
 
-                                <label for="addProductMemo">메모:</label>
-                                <input type="text" class="form-control mb-3" id="addProductMemo">
+                                <label for="addProductMemo">설명:</label>
+                                <textarea class="form-control mb-3 no-resize" id="addProductMemo" rows="4"></textarea>
 
                             </div>
 
@@ -181,25 +191,39 @@
                                         <input type="file" class="form-control" id="updateProductImageFile"  accept=".jpg, .jpeg, .png">
                                     </div>
 
+                                    <label for="updateProductRank">노출순위:</label>
+                                    <input type="text" class="form-control mb-3 number-input" id="updateProductRank">
+
                                     <label for="updateProductName">상품명:</label>
                                     <input type="text" class="form-control mb-3" id="updateProductName">
 
-                                    <label for="updateProductPrice">판매가:</label>
+                                    <label for="updateProductPrice">판매가(원):</label>
                                     <input type="text" class="form-control mb-3 number-input" id="updateProductPrice">
 
-                                    <label for="updateProductProbability">확률(%):</label>
-                                    <input type="number" class="form-control mb-3" id="updateProductProbability" min="0" max="100">
+                                    <label for="updateDiscountRate">할인율(%):</label>
+                                    <input type="text" class="form-control mb-3 number-input" id="updateDiscountRate">
+
+                                    <label for="updateDiscountPrice">할인가(원):</label>
+                                    <input type="text" class="form-control mb-3 number-input" id="updateDiscountPrice">
 
                                     <label for="updateProductLink">링크:</label>
                                     <input type="text" class="form-control mb-3" id="updateProductLink">
 
-                                    <label for="updateProductMemo">메모:</label>
-                                    <input type="text" class="form-control mb-3" id="updateProductMemo">
+                                    <label for="updateProductMemo">설명:</label>
+                                    <textarea class="form-control mb-3 no-resize" id="updateProductMemo" rows="4"></textarea>
 
                                     <!-- 사용/미사용 토글 -->
-                                    <div class="form-check form-switch mb-3">
-                                        <input class="form-check-input" type="checkbox" id="updateProductActive">
-                                        <label class="form-check-label" for="updateProductActive" id="updateProductActiveLabel">미사용</label>
+<!--                                    <div class="form-check form-switch mb-3">-->
+<!--                                        <input class="form-check-input" type="checkbox" id="updateProductActive">-->
+<!--                                        <label class="form-check-label" for="updateProductActive" id="updateProductActiveLabel">미사용</label>-->
+<!--                                    </div>-->
+                                    <div class="mb-3">
+                                        <label for="updateProductStatus" class="form-label">상품 상태</label>
+                                        <select class="form-select" id="updateProductStatus">
+                                            <option value="판매중">판매중</option>
+                                            <option value="품절">품절</option>
+                                            <option value="판매중지">판매중지</option>
+                                        </select>
                                     </div>
 
                                     <label for="updateProductMemberId">작성자:</label>
@@ -221,6 +245,7 @@
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js" crossorigin="anonymous"></script>
         <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js" crossorigin="anonymous"></script>
-        <script th:src="@{/js/view/drawHistory/drawHistory.js}"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script th:src="@{/js/view/prompt/prompt.js}"></script>
     </body>
 </html>

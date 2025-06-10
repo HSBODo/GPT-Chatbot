@@ -4,7 +4,6 @@ import com.example.chatbot.common.PasswordUtil;
 import com.example.chatbot.domain.member.Member;
 import com.example.chatbot.domain.member.constant.MemberRole;
 import com.example.chatbot.domain.member.dto.MemberDTO;
-import com.example.chatbot.domain.member.referral.ReferralCode;
 import com.example.chatbot.domain.member.repository.MemberRepository;
 import com.example.chatbot.domain.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
@@ -92,34 +91,5 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public void delete(String id) {
         memberRepository.deleteById(id);
-    }
-
-    @Transactional
-    @Override
-    public void addReferralCode(String memberId, String referralCode) {
-        Member member = memberRepository.findById(memberId).get();
-        ReferralCode referral = ReferralCode.builder()
-                .code(referralCode)
-                .registrant(memberId)
-                .build();
-        member.addReferralCode(referral);
-    }
-
-    @Override
-    public int availableReferralCode(String memberId) {
-        Member member = memberRepository.findById(memberId).orElseThrow();
-        int availableCount = member.availableReferralCodes().size();
-        return availableCount / 5; // 5개당 1개로 환산
-    }
-
-    @Override
-    public boolean isDuplicateReferralCode(String memberId, String referralCode) {
-        Member member = memberRepository.findById(memberId).get();
-
-        // 현재 멤버의 추천인 코드 리스트에서 중복 여부 확인
-        boolean isDuplicate = member.getReferralCodes().stream()
-                .anyMatch(code -> code.getCode().equals(referralCode));
-
-        return isDuplicate;
     }
 }

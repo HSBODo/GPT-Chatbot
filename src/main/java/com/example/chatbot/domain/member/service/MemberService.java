@@ -20,10 +20,4 @@ public interface MemberService {
     boolean duplicationMember(String id);
 
     void delete(String id);
-
-    void addReferralCode(String memberId, String referralCode);
-
-    int availableReferralCode(String memberId);
-
-    boolean isDuplicateReferralCode(String memberId, String referralCode);
 }

@@ -8,8 +8,11 @@ import com.example.chatbot.dto.OpenAiThreadRun;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -18,14 +21,26 @@ import java.util.Map;
 @Slf4j
 @Service
 public class OpenAiServiceImpl implements OpenAiService {
-    private RestTemplate restTemplate = new RestTemplate();
+    private RestTemplate restTemplate;
     private ObjectMapper mapper = new ObjectMapper()
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
     @Value("${openai.key}")
     private String OPENAI_API_KEY;
 //    private final String ASSISTANT_ID = "asst_s9UCWodjOKCDMnkydM3Brd0T"; // 비앤빛
-    private final String ASSISTANT_ID = "asst_u90wooH9QQcm59K64Q0qILBH";
+    @Value("${openai.assistants.id}")
+    private String ASSISTANT_ID;
+    // 생성자 또는 @PostConstruct에서 PATCH 가능한 RestTemplate 초기화
+    public OpenAiServiceImpl() {
+        this.restTemplate = createPatchSupportingRestTemplate();
+    }
+
+    private RestTemplate createPatchSupportingRestTemplate() {
+        // Apache HttpClient 기반 팩토리 사용
+        CloseableHttpClient client = HttpClients.createDefault();
+        HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory(client);
+        return new RestTemplate(factory);
+    }
 
     @Override
     public OpenAiThread createThread() {
@@ -56,6 +71,41 @@ public class OpenAiServiceImpl implements OpenAiService {
         } catch (Exception e) {
             log.error("OpenAI Thread 생성 실패: {}", e.getMessage());
             return null;
+        }
+    }
+    @Override
+    public boolean updateAssistantInstructions(String newModel, String newInstructions) {
+        try {
+            String url = "https://api.openai.com/v1/assistants/" + ASSISTANT_ID;
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.add("OpenAI-Beta", "assistants=v2");  // 이 부분 꼭 추가
+            headers.setBearerAuth(OPENAI_API_KEY);
+
+            String body = """
+        {
+          "instructions": "%s",
+          "model": "%s"
+        }
+        """.formatted(
+                    newInstructions.replace("\"", "\\\""),
+                    newModel.replace("\"", "\\\"")
+            );
+
+            HttpEntity<String> entity = new HttpEntity<>(body, headers);
+
+            // PATCH 요청: RestTemplate 기본은 PATCH 미지원하므로 exchange 사용
+            ResponseEntity<String> response = restTemplate.exchange(
+                    url,
+                    HttpMethod.POST,
+                    entity,
+                    String.class
+            );
+            return response.getStatusCode() == HttpStatus.OK;
+        } catch (Exception e) {
+            log.error("Failed to update assistant instructions: {}", e.getMessage());
+            return false;
         }
     }
 

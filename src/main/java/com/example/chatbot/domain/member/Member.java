@@ -4,19 +4,12 @@ import com.example.chatbot.common.PasswordUtil;
 import com.example.chatbot.domain.BaseEntity;
 import com.example.chatbot.domain.member.constant.MemberRole;
 import com.example.chatbot.domain.member.dto.MemberDTO;
-import com.example.chatbot.domain.member.referral.ReferralCode;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Getter
 @Entity
@@ -33,10 +26,6 @@ public class Member extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private MemberRole role;
     private boolean isAlarmTalk;
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-
-    @JoinColumn(name = "member_id")
-    private List<ReferralCode> referralCodes = new ArrayList<>();
 
     @Builder
     public Member(String id, String password, String name, String phone, MemberRole role) {
@@ -89,29 +78,7 @@ public class Member extends BaseEntity {
         this.password = PasswordUtil.encodePassword(rawPassword);
     }
 
-    public void addReferralCode(ReferralCode referralCode) {
-        this.referralCodes.add(referralCode);
-    }
-
     public void updateAlarmTalk(boolean isAlarmTalk) {
         this.isAlarmTalk = isAlarmTalk;
-    }
-
-    public void usedReferralCodes() {
-        List<ReferralCode> referralCodes = this.referralCodes;
-
-        Optional<ReferralCode> latestCode = referralCodes.stream()
-                .max(Comparator.comparing(BaseEntity::getCreateDate));
-
-        latestCode.ifPresent(referralCode -> {
-            referralCode.use(); // 사용 처리
-        });
-
-    }
-
-    public List<ReferralCode> availableReferralCodes() {
-        return this.referralCodes.stream()
-                .filter(code -> !code.isUseCode()) // 사용되지 않은 코드만 필터링
-                .collect(Collectors.toList());
     }
 }

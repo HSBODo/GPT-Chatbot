@@ -22,7 +22,7 @@ class OpenAiServiceImplTest {
     }
 
     @Test
-    void name() throws InterruptedException {
+    void sendMessage() throws InterruptedException {
         boolean isComplete = false;
         OpenAiThread thread = openAiService.createThread();
         System.out.println("thread = " + thread);
@@ -38,5 +38,11 @@ class OpenAiServiceImplTest {
         OpenAiMessageResponse message1 = openAiService.getMessage(threadId);
         String value = message1.getData().get(0).getContent().get(0).getText().getValue();
         System.out.println("value = " + value);
+    }
+
+    @Test
+    void updateAssistantInstructions() {
+        boolean b = openAiService.updateAssistantInstructions("gpt-4o-mini","테스트123123");
+        System.out.println("b = " + b);
     }
 }
