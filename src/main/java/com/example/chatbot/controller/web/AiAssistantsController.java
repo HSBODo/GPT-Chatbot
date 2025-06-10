@@ -1,6 +1,7 @@
 package com.example.chatbot.controller.web;
 
 import com.example.chatbot.common.service.HttpService;
+import com.example.chatbot.common.service.OpenAiService;
 import com.example.chatbot.domain.assistants.Assistants;
 import com.example.chatbot.domain.assistants.dto.AssistantsDto;
 import com.example.chatbot.domain.assistants.repository.AssistantsRepository;
@@ -24,6 +25,7 @@ import java.util.Optional;
 @RequestMapping("ai/assistants")
 public class AiAssistantsController {
     private final AssistantsRepository assistantsRepository;
+    private final OpenAiService openAiService;
 
     @Value("${openai.assistants.id}")
     private String ASSISTANT_ID;
@@ -62,17 +64,20 @@ public class AiAssistantsController {
         try {
             String newPrompt = data.get("prompt");
             log.info("Received new prompt: {}", newPrompt);
-
+            String model = "gpt-4o-mini";
             Optional<Assistants> maybeAssistant = assistantsRepository.findById(ASSISTANT_ID);
 
             Assistants assistant;
+
+            boolean isSuccess = openAiService.updateAssistantInstructions(model, newPrompt);
+            if (!isSuccess) throw new RuntimeException("OpenApi 어시스턴트 프롬프트 수정 실패");
 
             if (maybeAssistant.isEmpty()) {
                 assistant = Assistants.builder()
                         .id(ASSISTANT_ID)
                         .name("카카오 챗봇")
                         .prompt(newPrompt)  // 입력받은 prompt로 초기화
-                        .model("gpt-4o-mini")
+                        .model(model)
                         .build();
             } else {
                 assistant = maybeAssistant.get();
