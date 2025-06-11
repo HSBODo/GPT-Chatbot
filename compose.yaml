@@ -25,7 +25,7 @@ services:
       - 'SPRING_DATASOURCE_USERNAME=AiChat'
       - 'SPRING_DATASOURCE_PASSWORD=AiChat2025!'
       - 'SPRING_DATA_REDIS_HOST=redis'
-      - 'SPRING_DATA_REDIS_PORT=16379'
+      - 'SPRING_DATA_REDIS_PORT=6379'
       - 'OPENAI_API_KEY=${OPENAI_API_KEY}'
     env_file:
       - .env
