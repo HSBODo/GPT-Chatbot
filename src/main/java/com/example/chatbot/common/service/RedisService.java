@@ -1,17 +1,22 @@
 package com.example.chatbot.common.service;
 
+import com.example.chatbot.common.service.repository.RedisChatStatusRepository;
+import com.example.chatbot.dto.ChatStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
 public class RedisService {
     private final RedisTemplate<String, Object> redisTemplate;
+    private final RedisChatStatusRepository redisChatStatusRepository;
 
     public void setData(String key, Object value) {
         redisTemplate.opsForValue()
@@ -46,5 +51,22 @@ public class RedisService {
 
     public void expireValues(String key, int timeout) {
         redisTemplate.expire(key, timeout, TimeUnit.MILLISECONDS);
+    }
+
+    public void createChatStatus(String userKey) {
+        ChatStatus chatStatus = new ChatStatus(userKey, LocalDateTime.now());
+        redisChatStatusRepository.save(chatStatus);
+    }
+    public void deleteChatStatus(String userKey) {
+        redisChatStatusRepository.deleteById(userKey);
+    }
+
+    @Transactional(readOnly = true)
+    public ChatStatus getChatStatus(String userKey) {
+        Optional<ChatStatus> maybeChatStatusLog = redisChatStatusRepository.findById(userKey);
+        return maybeChatStatusLog.orElse(null);
+    }
+    public boolean isExistChatStatus(String userKey) {
+        return redisChatStatusRepository.existsById(userKey);
     }
 }

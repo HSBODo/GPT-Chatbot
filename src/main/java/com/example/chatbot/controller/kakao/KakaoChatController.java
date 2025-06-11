@@ -33,14 +33,13 @@ public class KakaoChatController {
     @PostMapping("")
     public ChatBotResponse fallBack(@RequestBody ChatBotRequest chatBotRequest) {
         ExecutorService executor = Executors.newSingleThreadExecutor();
+        String userKey = chatBotRequest.getUserKey();
         try {
             String utterance = chatBotRequest.getUtterance();
-            String userKey = chatBotRequest.getUserKey();
             log.info("{} : {}",userKey,utterance);
             ChatBotResponse response = new ChatBotResponse();
 
             if (utterance.equals("새로운 대화 시작")) {
-
                 redisService.deleteData(userKey);
                 OpenAiThread thread = openAiService.createThread();
                 String newThreadId = thread.getId();
@@ -50,6 +49,7 @@ public class KakaoChatController {
                 return response;
             }
 
+            if (!isVaildChatStatusResponse(userKey)) return chatBotExceptionResponse.createException("AI가 이전 질문의 답변을 생성하고 있습니다. 답변이 생성 된 후 질문해주세요.");
 
             // OpenAI 작업을 비동기로 실행
             CompletableFuture<String> future = CompletableFuture.supplyAsync(() -> {
@@ -76,7 +76,7 @@ public class KakaoChatController {
                     // 응답 완료까지 polling
                     while (!openAiService.threadCompletions(threadId, run.getId())) {
                         try {
-                            Thread.sleep(300); // polling 간격 줄이기 (성능 ↑)
+                            Thread.sleep(200); // polling 간격 줄이기 (성능 ↑)
                         } catch (InterruptedException ie) {
                             Thread.currentThread().interrupt(); // 인터럽트 상태 복구
                             throw new RuntimeException("OpenAI 응답 대기 중 인터럽트 발생", ie);
@@ -107,7 +107,14 @@ public class KakaoChatController {
             log.error("ChatBot 처리 중 예외 발생: {}", e.getMessage(), e);
             return chatBotExceptionResponse.createException();
         } finally {
+            redisService.deleteChatStatus(userKey);
             executor.shutdownNow(); // 항상 자원 정리
         }
+    }
+
+    private boolean isVaildChatStatusResponse(String userKey) {
+        if (redisService.isExistChatStatus(userKey)) return false;
+        redisService.createChatStatus(userKey);
+        return true;
     }
 }
