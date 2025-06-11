@@ -74,15 +74,13 @@ public class KakaoChatController {
 
                     // polling - 최대 3.5초까지 대기
                     int interval = 100;
-                    int maxWait = 4000;
+                    int maxWait = 4500;
                     int elapsed = 0;
                     while (elapsed < maxWait) {
                         if (openAiService.threadCompletions(threadId, run.getId())) break;
                         Thread.sleep(interval);
                         elapsed += interval;
                     }
-
-                    if (elapsed >= maxWait) throw new TimeoutException("OpenAI 응답 시간 초과");
 
                     // 메시지 수신 (Optional 안전 처리)
                     OpenAiMessageResponse aiResponse = openAiService.getMessage(threadId);
