@@ -38,12 +38,13 @@ public class KakaoChatController {
             ChatBotResponse response = new ChatBotResponse();
 
             if (utterance.equals("새로운 대화 시작")) {
+
                 redisService.deleteData(userKey);
                 OpenAiThread thread = openAiService.createThread();
                 String newThreadId = thread.getId();
                 redisService.setData(userKey, newThreadId, 1, TimeUnit.HOURS); // TTL 설정
-
-                response.addSimpleText("기존 대화를 초기화하고 새로운 대화를 시작합니다.\n무엇이 궁금하신가요?");
+                log.info("새로운 대화 시작으로 신규 스레드 아이디 발급 {} {}",userKey,newThreadId);
+                response.addSimpleText("기존 대화를 초기화하고 새로운 대화를 시작합니다!\n무엇을 도와드릴까요?");
                 return response;
             }
 
