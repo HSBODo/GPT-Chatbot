@@ -57,14 +57,22 @@ public class KakaoChatController {
             CompletableFuture<String> future = CompletableFuture.supplyAsync(() -> {
                 try {
                     String threadId = getOrCreateThreadId(userKey);
+
                     openAiService.sendMessage(threadId, utterance);
 
-                    String runId = getOrCreateRunId(userKey, threadId);
+                    // 새 run 생성
+                    OpenAiThreadRun run = openAiService.threadRun(threadId);
+
+                    if (run == null) throw new RuntimeException("Run 생성 실패");
+
+                    String runId = run.getId();
+                    redisService.setData(userKey + "runId", runId, 1, TimeUnit.HOURS);
 
                     // Polling
                     int interval = 100;
                     int maxWait = 4300;
                     int elapsed = 0;
+
                     while (elapsed < maxWait) {
                         if (openAiService.threadCompletions(threadId, runId)) break;
                         Thread.sleep(interval);
@@ -128,7 +136,7 @@ public class KakaoChatController {
         return threadId;
     }
 
-    private String getOrCreateRunId(String userKey, String threadId) {
+    private String createRunId(String userKey, String threadId) {
         String runId = Optional.ofNullable(redisService.getValue(userKey + "runId"))
                 .map(Object::toString)
                 .orElse("");
