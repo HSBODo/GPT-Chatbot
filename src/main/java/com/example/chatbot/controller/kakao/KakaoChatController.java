@@ -36,6 +36,7 @@ public class KakaoChatController {
         try {
             String utterance = chatBotRequest.getUtterance();
             String userKey = chatBotRequest.getUserKey();
+            log.info("{} : {}",userKey,userKey);
             ChatBotResponse response = new ChatBotResponse();
 
             if (utterance.equals("새로운 대화 시작")) {
