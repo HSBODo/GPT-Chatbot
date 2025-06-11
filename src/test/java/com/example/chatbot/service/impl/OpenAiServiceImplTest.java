@@ -52,4 +52,11 @@ class OpenAiServiceImplTest {
     void getAssistantInfo() throws JsonProcessingException {
         AssistantDto asstU90wooH9QQcm59K64Q0qILBH = openAiService.getAssistantInfo("asst_u90wooH9QQcm59K64Q0qILBH");
     }
+
+    @Test
+    void name() {
+        OpenAiMessageResponse message = openAiService.getMessage("thread_sRqrnpS9w0Z4q5eHdOswo8N7");
+        String value = message.getData().get(0).getContent().get(0).getText().getValue();
+        System.out.println("value = " + value);
+    }
 }

@@ -1,9 +1,7 @@
 package com.example.chatbot.controller.kakao;
 
 import com.example.chatbot.common.service.RedisService;
-import com.example.chatbot.dto.OpenAiMessageResponse;
-import com.example.chatbot.dto.OpenAiThread;
-import com.example.chatbot.dto.OpenAiThreadRun;
+import com.example.chatbot.dto.*;
 import com.example.chatbot.dto.kakao.constatnt.button.ButtonAction;
 import com.example.chatbot.dto.kakao.request.ChatBotRequest;
 import com.example.chatbot.dto.kakao.response.ChatBotExceptionResponse;
@@ -39,6 +37,69 @@ public class KakaoChatController {
             log.info("{} : {}", userKey, utterance);
             ChatBotResponse response = new ChatBotResponse();
 
+            if ("답변 확인하기".equals(utterance)) {
+                try {
+                    String threadId = Optional.ofNullable(redisService.getValue(userKey))
+                            .map(Object::toString)
+                            .orElse("");
+
+                    if (threadId.isEmpty()) {
+                        OpenAiThread thread = openAiService.createThread();
+                        threadId = thread.getId();
+                        log.info("유저키에 해당하는 스레드 아이디가 없어 생성 {} {}", userKey, threadId);
+                        redisService.setData(userKey, threadId, 1, TimeUnit.HOURS);
+                    }
+
+                    OpenAiThreadRun run = openAiService.threadRun(threadId);
+                    if (run == null) {
+                        return chatBotExceptionResponse.createException("진행 중인 답변이 없습니다.");
+                    }
+
+                    // polling - 최대 4.5초까지 대기
+                    int interval = 100;
+                    int maxWait = 4500;
+                    int elapsed = 0;
+                    boolean isComplete = false;
+
+                    while (elapsed < maxWait) {
+                        if (openAiService.threadCompletions(threadId, run.getId())) {
+                            isComplete = true;
+                            break;
+                        }
+                        Thread.sleep(interval);
+                        elapsed += interval;
+                    }
+
+                    // 아직 응답이 생성되지 않음 → 타임아웃 응답
+                    if (!isComplete) {
+                        log.info("답변 생성이 완료되지 않아 타임아웃 처리");
+                        return chatBotExceptionResponse.createTimeoutResponse();
+                    }
+
+                    // 메시지 수신 (Optional 안전 처리)
+                    OpenAiMessageResponse aiResponse = openAiService.getMessage(threadId);
+                    String aiText = Optional.ofNullable(aiResponse)
+                            .map(OpenAiMessageResponse::getData)
+                            .filter(dataList -> !dataList.isEmpty())
+                            .map(dataList -> dataList.get(0))
+                            .map(MessageData::getContent)
+                            .filter(contentList -> !contentList.isEmpty())
+                            .map(contentList -> contentList.get(0))
+                            .map(Content::getText)
+                            .map(Text::getValue)
+                            .orElse("죄송합니다. 응답을 가져오지 못했어요.");
+
+                    response.addSimpleText(aiText);
+                    response.addQuickButton(new Button("새로운 대화 시작", ButtonAction.블럭이동, ""));
+                    return response;
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    return chatBotExceptionResponse.createException("응답 대기 중 인터럽트 발생");
+                } catch (Exception e) {
+                    log.error("답변 확인 처리 실패: {}", e.getMessage(), e);
+                    return chatBotExceptionResponse.createException();
+                }
+            }
             // 대화 초기화 처리
             if ("새로운 대화 시작".equals(utterance)) {
                 redisService.deleteData(userKey);
@@ -85,9 +146,16 @@ public class KakaoChatController {
                     // 메시지 수신 (Optional 안전 처리)
                     OpenAiMessageResponse aiResponse = openAiService.getMessage(threadId);
 
-                    return Optional.ofNullable(aiResponse.getData().get(0).getContent().get(0).getText().getValue())
+                    return Optional.ofNullable(aiResponse)
+                            .map(OpenAiMessageResponse::getData)
+                            .filter(dataList -> !dataList.isEmpty())
+                            .map(dataList -> dataList.get(0))
+                            .map(MessageData::getContent)
+                            .filter(contentList -> !contentList.isEmpty())
+                            .map(contentList -> contentList.get(0))
+                            .map(Content::getText)
+                            .map(Text::getValue)
                             .orElse("죄송합니다. 응답을 가져오지 못했어요.");
-
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                     throw new RuntimeException("OpenAI 응답 대기 중 인터럽트 발생", e);
