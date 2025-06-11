@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.*;
 
@@ -68,6 +69,8 @@ public class KakaoChatController {
                     // 메시지 전송 및 실행
                     openAiService.sendMessage(threadId, utterance);
                     OpenAiThreadRun run = openAiService.threadRun(threadId);
+
+                    if (Objects.isNull(run)) return "";
 
                     // 응답 완료까지 polling
                     while (!openAiService.threadCompletions(threadId, run.getId())) {
