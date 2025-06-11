@@ -74,7 +74,7 @@ public class KakaoChatController {
 
                     // polling - 최대 3.5초까지 대기
                     int interval = 100;
-                    int maxWait = 3500;
+                    int maxWait = 4000;
                     int elapsed = 0;
                     while (elapsed < maxWait) {
                         if (openAiService.threadCompletions(threadId, run.getId())) break;
@@ -100,7 +100,7 @@ public class KakaoChatController {
             }, executor);
 
             // 최대 4.3초까지 응답 대기
-            String aiText = future.get(4300, TimeUnit.MILLISECONDS);
+            String aiText = future.get(4500, TimeUnit.MILLISECONDS);
             response.addSimpleText(aiText);
             response.addQuickButton(new Button("새로운 대화 시작", ButtonAction.블럭이동, ""));
             return response;
