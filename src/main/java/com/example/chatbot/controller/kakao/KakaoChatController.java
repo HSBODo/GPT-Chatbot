@@ -37,6 +37,17 @@ public class KakaoChatController {
             String userKey = chatBotRequest.getUserKey();
             ChatBotResponse response = new ChatBotResponse();
 
+            if (utterance.equals("새로운 대화 시작")) {
+                redisService.deleteData(userKey);
+                OpenAiThread thread = openAiService.createThread();
+                String newThreadId = thread.getId();
+                redisService.setData(userKey, newThreadId, 1, TimeUnit.HOURS); // TTL 설정
+
+                response.addSimpleText("기존 대화를 초기화하고 새로운 대화를 시작합니다.\n무엇이 궁금하신가요?");
+                return response;
+            }
+
+
             // OpenAI 작업을 비동기로 실행
             CompletableFuture<String> future = CompletableFuture.supplyAsync(() -> {
                 try {
@@ -78,7 +89,7 @@ public class KakaoChatController {
             }, executor);
 
             // 최대 4.5초까지 응답 대기
-            String aiText = future.get(4500, TimeUnit.MILLISECONDS);
+            String aiText = future.get(4700, TimeUnit.MILLISECONDS);
 
             response.addSimpleText(aiText);
             response.addQuickButton(new Button("새로운 대화 시작", ButtonAction.블럭이동, ""));
