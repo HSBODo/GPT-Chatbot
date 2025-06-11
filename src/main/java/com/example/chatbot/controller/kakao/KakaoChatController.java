@@ -76,7 +76,7 @@ public class KakaoChatController {
                     // 응답 완료까지 polling
                     while (!openAiService.threadCompletions(threadId, run.getId())) {
                         try {
-                            Thread.sleep(200); // polling 간격 줄이기 (성능 ↑)
+                            Thread.sleep(150); // polling 간격 줄이기 (성능 ↑)
                         } catch (InterruptedException ie) {
                             Thread.currentThread().interrupt(); // 인터럽트 상태 복구
                             throw new RuntimeException("OpenAI 응답 대기 중 인터럽트 발생", ie);
