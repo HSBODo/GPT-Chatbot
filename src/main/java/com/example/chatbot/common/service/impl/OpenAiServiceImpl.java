@@ -194,6 +194,33 @@ public class OpenAiServiceImpl implements OpenAiService {
     }
 
     @Override
+    public OpenAiThreadRun getRunStatus(String threadId, String runId) {
+        try {
+            // GET 요청용 API URL
+            String apiUrl = String.format("https://api.openai.com/v1/threads/%s/runs/%s", threadId, runId);
+
+            // 헤더 설정
+            HttpHeaders openAiHeaders = getOpenAiHeaders();
+            HttpEntity<Void> requestEntity = new HttpEntity<>(openAiHeaders);
+
+            // GET 요청
+            ResponseEntity<String> responseEntity = restTemplate.exchange(
+                    apiUrl,
+                    HttpMethod.GET,
+                    requestEntity,
+                    String.class
+            );
+
+            // 응답 파싱
+            return mapper.readValue(responseEntity.getBody(), OpenAiThreadRun.class);
+
+        } catch (Exception e) {
+            log.error("OpenAI getRunStatus 실패: {}", e.getMessage(), e);
+            return null;
+        }
+    }
+
+    @Override
     public OpenAiMessageResponse getMessage(String threadId) {
         try {
             // API 엔드포인트 URL

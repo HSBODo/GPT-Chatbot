@@ -12,7 +12,7 @@ public interface OpenAiService {
     OpenAiMessageResponse sendMessage(String threadId, String message);
 
     OpenAiThreadRun threadRun(String threadId);
-
+    OpenAiThreadRun getRunStatus(String threadId, String runId);
     OpenAiMessageResponse getMessage(String threadId);
 
     boolean threadCompletions(String threadId, String runId);

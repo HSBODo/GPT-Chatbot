@@ -41,7 +41,8 @@ public class ChatBotExceptionResponse {
 
     public ChatBotResponse createException(){
         ChatBotResponse chatBotResponse = new ChatBotResponse();
-        chatBotResponse.addSimpleText("시스템에 오류가 발생하였습니다.\n처음부터 다시 시작해주세요.");
+        chatBotResponse.addSimpleText("처음부터 다시 시작해주세요.");
+        chatBotResponse.addQuickButton(new Button("새로운 대화 시작", ButtonAction.블럭이동, ""));
         return chatBotResponse;
     }
 
