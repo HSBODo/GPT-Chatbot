@@ -1,5 +1,6 @@
 package com.example.chatbot.controller.kakao;
 
+import com.example.chatbot.common.service.RedisService;
 import com.example.chatbot.dto.OpenAiMessageResponse;
 import com.example.chatbot.dto.OpenAiThread;
 import com.example.chatbot.dto.OpenAiThreadRun;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Optional;
 import java.util.concurrent.*;
 
 @RestController
@@ -25,20 +27,31 @@ import java.util.concurrent.*;
 public class KakaoChatController {
     private final ChatBotExceptionResponse chatBotExceptionResponse = new ChatBotExceptionResponse();
     private final OpenAiService openAiService;
+    private final RedisService redisService;
 
     @PostMapping("")
     public ChatBotResponse fallBack(@RequestBody ChatBotRequest chatBotRequest) {
+        ExecutorService executor = null;
         try {
             String utterance = chatBotRequest.getUtterance();
             ChatBotResponse response = new ChatBotResponse();
+            String userKey = chatBotRequest.getUserKey();
 
-            ExecutorService executor = Executors.newSingleThreadExecutor();
+            executor = Executors.newSingleThreadExecutor();
 
             // OpenAI 작업을 비동기로 실행
             CompletableFuture<String> future = CompletableFuture.supplyAsync(() -> {
                 try {
-                    OpenAiThread thread = openAiService.createThread();
-                    String threadId = thread.getId();
+                    String threadId = Optional.ofNullable(redisService.getValue(userKey))
+                            .map(Object::toString)
+                            .orElse("");
+
+                    if (threadId.isEmpty()) {
+                        OpenAiThread thread = openAiService.createThread();
+                        threadId = thread.getId();
+                        log.info("유저키에 해당하는 스레드 아이디가 없어 생성 {} {}", userKey, threadId);
+                        redisService.setData(userKey, threadId, 1, TimeUnit.HOURS); // TTL 1시간 설정 등 추가 가능
+                    }
 
                     openAiService.sendMessage(threadId, utterance);
                     OpenAiThreadRun openAiThreadRun = openAiService.threadRun(threadId);
@@ -61,7 +74,7 @@ public class KakaoChatController {
                     OpenAiMessageResponse aiMessageResponse = openAiService.getMessage(threadId);
                     return aiMessageResponse.getData().get(0).getContent().get(0).getText().getValue();
                 } catch (Exception e) {
-                    log.error("OpenAI 처리 실패 {}", e.getMessage(),e);
+                    log.error("OpenAI 처리 실패 {}", e.getMessage(), e);
                     throw new RuntimeException("OpenAI 처리 실패");
                 }
             }, executor);
@@ -70,7 +83,7 @@ public class KakaoChatController {
             String aiResponse = future.get(4500, TimeUnit.MILLISECONDS);
 
             response.addSimpleText(aiResponse);
-            response.addQuickButton(new Button("새로운 대화 시작", ButtonAction.블럭이동,""));
+            response.addQuickButton(new Button("새로운 대화 시작", ButtonAction.블럭이동, ""));
             return response;
 
         } catch (TimeoutException e) {
@@ -79,6 +92,8 @@ public class KakaoChatController {
         } catch (Exception e) {
             log.error("처리 중 오류 {}", e.getMessage(), e);
             return chatBotExceptionResponse.createException(); // 일반 예외 처리
+        } finally {
+            executor.shutdownNow(); // 자원 누수 방지
         }
     }
 }
