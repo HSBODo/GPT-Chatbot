@@ -31,69 +31,67 @@ public class KakaoChatController {
 
     @PostMapping("")
     public ChatBotResponse fallBack(@RequestBody ChatBotRequest chatBotRequest) {
-        ExecutorService executor = null;
+        ExecutorService executor = Executors.newSingleThreadExecutor();
         try {
             String utterance = chatBotRequest.getUtterance();
-            ChatBotResponse response = new ChatBotResponse();
             String userKey = chatBotRequest.getUserKey();
-
-            executor = Executors.newSingleThreadExecutor();
+            ChatBotResponse response = new ChatBotResponse();
 
             // OpenAI 작업을 비동기로 실행
             CompletableFuture<String> future = CompletableFuture.supplyAsync(() -> {
                 try {
+                    // Redis에서 threadId 가져오기
                     String threadId = Optional.ofNullable(redisService.getValue(userKey))
                             .map(Object::toString)
                             .orElse("");
 
+                    // threadId가 없다면 새로 생성
                     if (threadId.isEmpty()) {
                         OpenAiThread thread = openAiService.createThread();
                         threadId = thread.getId();
                         log.info("유저키에 해당하는 스레드 아이디가 없어 생성 {} {}", userKey, threadId);
-                        redisService.setData(userKey, threadId, 1, TimeUnit.HOURS); // TTL 1시간 설정 등 추가 가능
+                        redisService.setData(userKey, threadId, 1, TimeUnit.HOURS); // TTL 설정
                     }
 
+                    // 메시지 전송 및 실행
                     openAiService.sendMessage(threadId, utterance);
-                    OpenAiThreadRun openAiThreadRun = openAiService.threadRun(threadId);
+                    OpenAiThreadRun run = openAiService.threadRun(threadId);
 
-                    boolean isComplete = false;
-
-                    while (!isComplete) {
-                        isComplete = openAiService.threadCompletions(threadId, openAiThreadRun.getId());
-
-                        if (!isComplete) {
-                            try {
-                                Thread.sleep(500); // 0.5초 간격으로 재확인
-                            } catch (InterruptedException e) {
-                                Thread.currentThread().interrupt();
-                                throw new RuntimeException("대기 중 인터럽트 발생", e);
-                            }
+                    // 응답 완료까지 polling
+                    while (!openAiService.threadCompletions(threadId, run.getId())) {
+                        try {
+                            Thread.sleep(300); // polling 간격 줄이기 (성능 ↑)
+                        } catch (InterruptedException ie) {
+                            Thread.currentThread().interrupt(); // 인터럽트 상태 복구
+                            throw new RuntimeException("OpenAI 응답 대기 중 인터럽트 발생", ie);
                         }
                     }
 
-                    OpenAiMessageResponse aiMessageResponse = openAiService.getMessage(threadId);
-                    return aiMessageResponse.getData().get(0).getContent().get(0).getText().getValue();
+                    // 메시지 수신
+                    OpenAiMessageResponse aiResponse = openAiService.getMessage(threadId);
+                    return aiResponse.getData().get(0).getContent().get(0).getText().getValue();
+
                 } catch (Exception e) {
-                    log.error("OpenAI 처리 실패 {}", e.getMessage(), e);
-                    throw new RuntimeException("OpenAI 처리 실패");
+                    log.error("OpenAI 처리 실패: {}", e.getMessage(), e);
+                    throw new RuntimeException("OpenAI 처리 실패", e);
                 }
             }, executor);
 
-            // 최대 5초까지 기다림
-            String aiResponse = future.get(4500, TimeUnit.MILLISECONDS);
+            // 최대 4.5초까지 응답 대기
+            String aiText = future.get(4500, TimeUnit.MILLISECONDS);
 
-            response.addSimpleText(aiResponse);
+            response.addSimpleText(aiText);
             response.addQuickButton(new Button("새로운 대화 시작", ButtonAction.블럭이동, ""));
             return response;
 
         } catch (TimeoutException e) {
             log.warn("OpenAI 응답 시간 초과");
-            return chatBotExceptionResponse.createTimeoutResponse(); // 5초 초과 시 반환할 응답
+            return chatBotExceptionResponse.createTimeoutResponse();
         } catch (Exception e) {
-            log.error("처리 중 오류 {}", e.getMessage(), e);
-            return chatBotExceptionResponse.createException(); // 일반 예외 처리
+            log.error("ChatBot 처리 중 예외 발생: {}", e.getMessage(), e);
+            return chatBotExceptionResponse.createException();
         } finally {
-            executor.shutdownNow(); // 자원 누수 방지
+            executor.shutdownNow(); // 항상 자원 정리
         }
     }
 }
