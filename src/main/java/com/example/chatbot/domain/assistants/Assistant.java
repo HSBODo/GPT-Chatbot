@@ -43,4 +43,12 @@ public class Assistant extends BaseEntity {
                 .createDate(getCreateDate())
                 .build();
     }
+
+    public void modifyTitle(String title) {
+        this.title = title;
+    }
+
+    public void modifyPrompt(String prompt) {
+        this.prompt = prompt;
+    }
 }

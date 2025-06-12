@@ -3,6 +3,7 @@ package com.example.chatbot.controller.web;
 import com.example.chatbot.common.service.OpenAiService;
 import com.example.chatbot.domain.assistants.dto.AssistantDto;
 import com.example.chatbot.domain.assistants.service.AssistantsService;
+import com.example.chatbot.dto.OpenAiAssistantDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -35,7 +36,7 @@ public class AiAssistantsController {
     @GetMapping("")
     public ResponseEntity getAssistant() {
         try {
-            com.example.chatbot.dto.AssistantDto assistantInfo = openAiService.getAssistantInfo(ASSISTANT_ID);
+            OpenAiAssistantDto assistantInfo = openAiService.getAssistantInfo(ASSISTANT_ID);
             return ResponseEntity
                     .ok(assistantInfo);
         }catch (Exception e) {
@@ -48,16 +49,13 @@ public class AiAssistantsController {
     @PatchMapping("/prompt")
     public ResponseEntity<?> updatePrompt(@RequestBody Map<String, String> data) {
         try {
+            String uuid = data.get("id");
             String newPrompt = data.get("prompt");
-            log.info("Received new prompt: {}", newPrompt);
+            String newTitle = data.get("title");
 
-            boolean updateSuccess = openAiService.updateAssistantInstructions(AI_MODEL, newPrompt);
+            assistantsService.modifyPrompt(uuid,newTitle,newPrompt);
 
-            if (!updateSuccess) throw new RuntimeException("프롬프트 업데이트를 실패하였습니다.");
-
-            com.example.chatbot.dto.AssistantDto assistantInfo = openAiService.getAssistantInfo(ASSISTANT_ID);
-
-            return ResponseEntity.ok(assistantInfo);
+            return ResponseEntity.ok().build();
         } catch (Exception e) {
             log.error("Error updating prompt", e);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
@@ -67,11 +65,11 @@ public class AiAssistantsController {
     public ResponseEntity<?> addPrompt(@RequestBody Map<String, String> data) {
         try {
             String title = data.get("title");
-            String description = data.get("description");
+            String prompt = data.get("prompt");
 
-            log.info("{} {}",title,description);
+            log.info("{} {}",title,prompt);
 
-            assistantsService.savePrompt(title,description);
+            assistantsService.savePrompt(title,prompt);
 
             return ResponseEntity.ok().build();
         } catch (Exception e) {
@@ -84,7 +82,7 @@ public class AiAssistantsController {
     public ResponseEntity<?> getPrompts() {
         try {
 
-            List<AssistantDto> assistantDtos = assistantsService.getAll();
+            List<AssistantDto> assistantDtos = assistantsService.getAll("createDate","desc");
 
             return ResponseEntity.ok(assistantDtos);
         } catch (Exception e) {

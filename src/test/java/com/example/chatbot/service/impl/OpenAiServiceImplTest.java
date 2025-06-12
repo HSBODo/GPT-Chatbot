@@ -1,6 +1,6 @@
 package com.example.chatbot.service.impl;
 
-import com.example.chatbot.dto.AssistantDto;
+import com.example.chatbot.dto.OpenAiAssistantDto;
 import com.example.chatbot.dto.OpenAiMessageResponse;
 import com.example.chatbot.dto.OpenAiThread;
 import com.example.chatbot.dto.OpenAiThreadRun;
@@ -50,7 +50,7 @@ class OpenAiServiceImplTest {
 
     @Test
     void getAssistantInfo() throws JsonProcessingException {
-        AssistantDto asstU90wooH9QQcm59K64Q0qILBH = openAiService.getAssistantInfo("asst_u90wooH9QQcm59K64Q0qILBH");
+        OpenAiAssistantDto asstU90wooH9QQcm59K64Q0qILBH = openAiService.getAssistantInfo("asst_u90wooH9QQcm59K64Q0qILBH");
     }
 
     @Test

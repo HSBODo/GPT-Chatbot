@@ -1,7 +1,7 @@
 package com.example.chatbot.common.service.impl;
 
 import com.example.chatbot.common.service.OpenAiService;
-import com.example.chatbot.dto.AssistantDto;
+import com.example.chatbot.dto.OpenAiAssistantDto;
 import com.example.chatbot.dto.OpenAiMessage;
 import com.example.chatbot.dto.OpenAiMessageResponse;
 import com.example.chatbot.dto.OpenAiThread;
@@ -114,7 +114,7 @@ public class OpenAiServiceImpl implements OpenAiService {
         }
     }
     @Override
-    public AssistantDto getAssistantInfo(String assistantId) throws JsonProcessingException {
+    public OpenAiAssistantDto getAssistantInfo(String assistantId) throws JsonProcessingException {
         String url = "https://api.openai.com/v1/assistants/" + assistantId;
 
         HttpHeaders headers = new HttpHeaders();
@@ -130,7 +130,7 @@ public class OpenAiServiceImpl implements OpenAiService {
                 String.class
         );
 
-        return mapper.readValue(response.getBody(), AssistantDto.class);
+        return mapper.readValue(response.getBody(), OpenAiAssistantDto.class);
     }
 
     @Override

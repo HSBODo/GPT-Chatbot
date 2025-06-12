@@ -9,7 +9,9 @@ public interface AssistantsService {
 
     void deletePrompt(String id);
 
-    List<AssistantDto> getAll();
+    void modifyPrompt(String id, String title, String prompt);
+
+    List<AssistantDto> getAll(String sortBy, String direction);
 
     AssistantDto getPromptDto(String id);
 }

@@ -23,21 +23,27 @@ const headers = [
     'No', '제목','프롬프트', '등록일','관리'
 ];
 function createTableRow(data, index) {
-    const idCell = $('<td>').text(data.id).css({ cursor: 'pointer', color: 'blue' });
+    const idCell = $('<td>', {
+        text: data.title,
+        css: {
+            whiteSpace: 'nowrap',
+            cursor: 'pointer',
+            color: 'blue'
+        }
+    });
 
     idCell.on('click', () => {
         // 모달에 데이터 채우기
-        $('#updateMemberId').val(data.title);
-        $('#updateMemberName').val(data.prompt);
-        $('#updateMemberPhone').val(data.createDate);
+        $('#updatePromptTitle').val(data.title);
+        $('#updatePromptDescription').val(data.prompt);
+        $('#updateUUID').val(data.id);
         // 모달 열기
         $('#updateModal').modal('show');
     });
 
     const row = $('<tr>');
     row.append($('<td>').text(index + 1));
-    // row.append(idCell);
-    row.append($('<td>').css('white-space', 'nowrap').text(data.title));
+    row.append(idCell);
     row.append($('<td>').text(data.prompt));
     row.append($('<td>').css('white-space', 'nowrap').text(formatDate(data.createDate)));
     row.append($('<td>').append(
@@ -63,7 +69,6 @@ function deleteButton (data) {
         }
     })
 }
-
 function applyButton (data) {
     return  $('<button>').text('적용').addClass('btn btn-success mx-lg-1 btn-sm').on('click',function (){
 
@@ -71,6 +76,47 @@ function applyButton (data) {
             applyPrompt(data.id)
         }
     })
+}
+
+function addPrompt() {
+    const title = $("#addPromptTitle").val();
+    const prompt = $("#addPromptDescription").val();
+
+    if (!title) {
+        alert("제목을 입력하세요.")
+        return
+    }
+
+    if (!prompt) {
+        alert("프롬프트를 입력하세요.")
+        return;
+    }
+
+    fetch(`/ai/assistants/prompt`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            title : title,
+            prompt : prompt
+        })  // prompt 데이터를 JSON으로 보내기
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }else {
+                alert("등록을 완료하였습니다.")
+                getTable()
+                $('#addModal').modal('hide');
+            }
+        })
+        .catch(error => {
+            alert("등록을 실패하였습니다.")
+            console.error('Error:', error);
+        })
+        .finally(() => {
+        });
 }
 function applyPrompt(id) {
     fetch(`/ai/assistants/prompts/apply/${id}`, {
@@ -111,6 +157,48 @@ function deletePrompt(id) {
             console.log(error)
         });
 }
+function updatePrompt() {
+    const uuid = $("#updateUUID").val();
+    const title = $("#updatePromptTitle").val();
+    const prompt = $("#updatePromptDescription").val();
+
+    if (!title) {
+        alert("제목을 입력하세요.")
+        return
+    }
+
+    if (!prompt) {
+        alert("프롬프트를 입력하세요.")
+        return;
+    }
+    fetch(`/ai/assistants/prompt`, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            id : uuid ,
+            title : title,
+            prompt : prompt
+        })  // prompt 데이터를 JSON으로 보내기
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }else {
+                alert("수정을 완료하였습니다.")
+                getTable()
+                $('#updateModal').modal('hide');
+            }
+        })
+        .catch(error => {
+            alert("수정을 실패하였습니다.")
+            console.error('Error:', error);
+        })
+        .finally(() => {
+        });
+}
+
 function getAssistantInfo() {
     $("#loadingOverlay").show();
 
@@ -136,35 +224,7 @@ function showAddModal() {
     $("#addPromptDescription").val("");
     $('#addModal').modal('show');
 }
-function addPrompt() {
-    const title = $("#addPromptTitle").val();
-    const description = $("#addPromptDescription").val();
-    fetch(`/ai/assistants/prompt`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            title : title,
-            description : description
-        })  // prompt 데이터를 JSON으로 보내기
-    })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }else {
-                alert("등록을 완료하였습니다.")
-                getTable()
-                $('#addModal').modal('hide');
-            }
-        })
-        .catch(error => {
-            alert("등록을 실패하였습니다.")
-            console.error('Error:', error);
-        })
-        .finally(() => {
-        });
-}
+
 function save() {
     if (confirm("프롬프트를 저장하시겠습니까?")) {
         const prompt = $("#instructionsTextarea").val();

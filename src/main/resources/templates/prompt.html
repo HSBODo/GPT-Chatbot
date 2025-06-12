@@ -112,11 +112,11 @@
                                 <input type="text" class="form-control mb-3" id="addPromptTitle">
 
                                 <label for="addPromptDescription">내용:</label>
-                                <textarea class="form-control mb-3 no-resize" id="addPromptDescription" rows="10"></textarea>
+                                <textarea class="form-control mb-3 no-resize" id="addPromptDescription" rows="15"></textarea>
                             </div>
 
                             <div class="d-flex align-items-center justify-content-center mt-3 mb-3 gap-3">
-                                <button type="button" id="addProductButton" class="btn btn-primary" onclick="addPrompt()">등록</button>
+                                <button type="button" id="addButton" class="btn btn-primary" onclick="addPrompt()">등록</button>
                                 <button type="button" class="btn btn-danger" data-bs-dismiss="modal">취소</button>
                             </div>
                         </div>
@@ -127,78 +127,20 @@
                     <div class="modal-dialog">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h6 class="modal-title" id="updateModalLabel">매물 수정</h6>
+                                <h6 class="modal-title" id="updateModalLabel">프롬프트 수정</h6>
                             </div>
+                            <input type="password" hidden="hidden" id="updateUUID">
                             <div class="modal-body">
-                                <div class="form-group">
-                                    <input type="hidden" id="updateProductId">
+                                <label for="updatePromptTitle">제목:</label>
+                                <input type="text" class="form-control mb-3" id="updatePromptTitle">
 
-                                    <div class="form-group mb-3">
-                                        <label>이미지 입력 방법:</label>
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="radio" name="updateImageInputType" id="updateImageUrlOption" value="url" checked>
-                                            <label class="form-check-label" for="updateImageUrlOption">이미지 URL</label>
+                                <label for="updatePromptDescription">내용:</label>
+                                <textarea class="form-control mb-3 no-resize" id="updatePromptDescription" rows="15"></textarea>
+                            </div>
 
-                                        </div>
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="radio" name="updateImageInputType" id="updateImageFileOption" value="file">
-                                            <label class="form-check-label" for="updateImageFileOption">이미지 파일</label>
-                                        </div>
-                                    </div>
-                                    <!-- 이미지 URL 입력 -->
-                                    <div class="form-group mb-3" id="updateImageUrlGroup">
-                                        <label for="updateProductImageUrl">이미지 URL:</label>
-                                        <input type="text" class="form-control" id="updateProductImageUrl">
-                                    </div>
-
-                                    <!-- 이미지 파일 입력 -->
-                                    <div class="form-group mb-3" id="updateImageFileGroup" style="display: none;">
-                                        <label for="updateProductImageFile">이미지 파일:</label>
-                                        <input type="file" class="form-control" id="updateProductImageFile"  accept=".jpg, .jpeg, .png">
-                                    </div>
-
-                                    <label for="updateProductRank">노출순위:</label>
-                                    <input type="text" class="form-control mb-3 number-input" id="updateProductRank">
-
-                                    <label for="updateProductName">상품명:</label>
-                                    <input type="text" class="form-control mb-3" id="updateProductName">
-
-                                    <label for="updateProductPrice">판매가(원):</label>
-                                    <input type="text" class="form-control mb-3 number-input" id="updateProductPrice">
-
-                                    <label for="updateDiscountRate">할인율(%):</label>
-                                    <input type="text" class="form-control mb-3 number-input" id="updateDiscountRate">
-
-                                    <label for="updateDiscountPrice">할인가(원):</label>
-                                    <input type="text" class="form-control mb-3 number-input" id="updateDiscountPrice">
-
-                                    <label for="updateProductLink">링크:</label>
-                                    <input type="text" class="form-control mb-3" id="updateProductLink">
-
-                                    <label for="updateProductMemo">설명:</label>
-                                    <textarea class="form-control mb-3 no-resize" id="updateProductMemo" rows="4"></textarea>
-
-                                    <!-- 사용/미사용 토글 -->
-<!--                                    <div class="form-check form-switch mb-3">-->
-<!--                                        <input class="form-check-input" type="checkbox" id="updateProductActive">-->
-<!--                                        <label class="form-check-label" for="updateProductActive" id="updateProductActiveLabel">미사용</label>-->
-<!--                                    </div>-->
-                                    <div class="mb-3">
-                                        <label for="updateProductStatus" class="form-label">상품 상태</label>
-                                        <select class="form-select" id="updateProductStatus">
-                                            <option value="판매중">판매중</option>
-                                            <option value="품절">품절</option>
-                                            <option value="판매중지">판매중지</option>
-                                        </select>
-                                    </div>
-
-                                    <label for="updateProductMemberId">작성자:</label>
-                                    <input type="text" class="form-control mb-3" id="updateProductMemberId" readonly>
-                                </div>
-                                <div class="d-flex align-items-center justify-content-center mt-4 mb-0 gap-3">
-                                    <button type="button" id="updateProductButton" class="btn btn-primary">수정</button>
-                                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">취소</button>
-                                </div>
+                            <div class="d-flex align-items-center justify-content-center mt-3 mb-3 gap-3">
+                                <button type="button" id="updateButton" class="btn btn-primary" onclick="updatePrompt()">수정</button>
+                                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">취소</button>
                             </div>
 
                         </div>

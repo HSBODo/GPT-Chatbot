@@ -6,6 +6,7 @@ import com.example.chatbot.domain.assistants.repository.AssistantsRepository;
 import com.example.chatbot.domain.assistants.service.AssistantsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,10 +45,20 @@ public class AssistantsServiceImpl implements AssistantsService {
     public void deletePrompt(String id) {
         assistantsRepository.deleteById(UUID.fromString(id));
     }
+    @Transactional
+    @Override
+    public void modifyPrompt(String id, String title, String prompt) {
+        Assistant assistant = assistantsRepository.findById(UUID.fromString(id))
+                .orElseThrow(() -> new NoSuchElementException(id+" 찾을 수 없습니다."));
+
+        assistant.modifyTitle(title);
+        assistant.modifyPrompt(prompt);
+    }
 
     @Override
-    public List<AssistantDto> getAll() {
-        return assistantsRepository.findAll().stream()
+    public List<AssistantDto> getAll(String sortBy, String direction) {
+        Sort sort = Sort.by(Sort.Direction.fromString(direction), sortBy);
+        return assistantsRepository.findAll(sort).stream()
                 .map(Assistant::toDto)
                 .collect(Collectors.toList());
 
