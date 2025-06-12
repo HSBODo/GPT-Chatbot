@@ -88,6 +88,8 @@ public class KakaoChatController {
             }, executor);
 
             String aiText = future.get(4800, TimeUnit.MILLISECONDS);
+            log.info("글자 수 {}",aiText.length());
+
             response.addSimpleText(aiText);
             response.addQuickButton(new Button("새로운 대화 시작", ButtonAction.블럭이동, ""));
             return response;
@@ -193,6 +195,7 @@ public class KakaoChatController {
             }
 
             String aiText = extractAiResponse(openAiService.getMessage(threadId));
+            log.info("글자 수 {}",aiText.length());
 
             ChatBotResponse response = new ChatBotResponse();
             response.addSimpleText(aiText);
