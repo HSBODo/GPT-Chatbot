@@ -71,7 +71,7 @@ public class KakaoChatController {
 
                     // Polling
                     int interval = 100;
-                    int maxWait = 4600;
+                    int maxWait = 5100;
                     int elapsed = 0;
 
                     while (elapsed < maxWait) {
@@ -87,7 +87,7 @@ public class KakaoChatController {
                 }
             }, executor);
 
-            String aiText = future.get(4700, TimeUnit.MILLISECONDS);
+            String aiText = future.get(4800, TimeUnit.MILLISECONDS);
             response.addSimpleText(aiText);
             response.addQuickButton(new Button("새로운 대화 시작", ButtonAction.블럭이동, ""));
             return response;
