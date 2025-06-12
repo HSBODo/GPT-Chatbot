@@ -71,7 +71,7 @@ public class KakaoChatController {
 
                     // Polling
                     int interval = 100;
-                    int maxWait = 4000;
+                    int maxWait = 4300;
                     int elapsed = 0;
 
                     while (elapsed < maxWait) {
@@ -87,7 +87,7 @@ public class KakaoChatController {
                 }
             }, executor);
 
-            String aiText = future.get(4000, TimeUnit.MILLISECONDS);
+            String aiText = future.get(4300, TimeUnit.MILLISECONDS);
             log.info("글자 수 {}",aiText.length());
 
             if (aiText.length()>1000) {
