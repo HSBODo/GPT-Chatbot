@@ -18,6 +18,7 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
@@ -82,31 +83,30 @@ public class OpenAiServiceImpl implements OpenAiService {
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
-            headers.add("OpenAI-Beta", "assistants=v2");  // 이 부분 꼭 추가
+            headers.add("OpenAI-Beta", "assistants=v2");  // 꼭 필요함
             headers.setBearerAuth(OPENAI_API_KEY);
 
-            String body = """
-        {
-          "instructions": "%s",
-          "model": "%s"
-        }
-        """.formatted(
-                    newInstructions.replace("\"", "\\\""),
-                    newModel.replace("\"", "\\\"")
-            );
+            // JSON 객체 생성
+            Map<String, Object> bodyMap = new HashMap<>();
+            bodyMap.put("instructions", newInstructions);
+            bodyMap.put("model", newModel);
 
-            HttpEntity<String> entity = new HttpEntity<>(body, headers);
+            // JSON 직렬화
+            String jsonBody = mapper.writeValueAsString(bodyMap);
 
-            // PATCH 요청: RestTemplate 기본은 PATCH 미지원하므로 exchange 사용
+            HttpEntity<String> entity = new HttpEntity<>(jsonBody, headers);
+
+            // POST (혹은 PATCH) 요청
             ResponseEntity<String> response = restTemplate.exchange(
                     url,
-                    HttpMethod.POST,
+                    HttpMethod.POST,  // 혹시 이게 PATCH여야 한다면 HttpMethod.PATCH로 변경
                     entity,
                     String.class
             );
-            return response.getStatusCode() == HttpStatus.OK;
+
+            return response.getStatusCode().is2xxSuccessful();
         } catch (Exception e) {
-            log.error("Failed to update assistant instructions: {}", e.getMessage());
+            log.error("Failed to update assistant instructions", e);
             return false;
         }
     }
