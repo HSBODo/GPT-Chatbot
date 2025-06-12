@@ -81,9 +81,9 @@ function applyPrompt(id) {
     })
         .then(response => {
             if (response.ok){
+                alert("성공적으로 적용하였습니다.")
                 getTable()
                 getAssistantInfo()
-                alert("성공적으로 적용하였습니다.")
             }else {
                 alert("적용을 실패하였습니다.")
             }
