@@ -90,6 +90,12 @@ public class KakaoChatController {
             String aiText = future.get(4000, TimeUnit.MILLISECONDS);
             log.info("글자 수 {}",aiText.length());
 
+            if (aiText.length()>1000) {
+                response.addSimpleText("답변의 글자수가 1000자가 넘습니다.");
+                return response;
+            }
+
+
             response.addSimpleText(aiText);
             response.addQuickButton(new Button("새로운 대화 시작", ButtonAction.블럭이동, ""));
             return response;
@@ -196,8 +202,13 @@ public class KakaoChatController {
 
             String aiText = extractAiResponse(openAiService.getMessage(threadId));
             log.info("글자 수 {}",aiText.length());
-
             ChatBotResponse response = new ChatBotResponse();
+
+            if (aiText.length()>1000) {
+                response.addSimpleText("답변의 글자수가 1000자가 넘습니다.");
+                return response;
+            }
+
             response.addSimpleText(aiText);
             response.addQuickButton(new Button("새로운 대화 시작", ButtonAction.블럭이동, ""));
             return response;
