@@ -1,18 +1,17 @@
 package com.example.chatbot.controller.web;
 
 import com.example.chatbot.common.service.OpenAiService;
-import com.example.chatbot.dto.AssistantDto;
+import com.example.chatbot.domain.assistants.dto.AssistantDto;
+import com.example.chatbot.domain.assistants.service.AssistantsService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -21,9 +20,13 @@ import java.util.Map;
 @RequestMapping("ai/assistants")
 public class AiAssistantsController {
     private final OpenAiService openAiService;
+    private final AssistantsService assistantsService;
 
     @Value("${openai.assistants.id}")
     private String ASSISTANT_ID;
+
+    @Value("${openai.model}")
+    private String AI_MODEL;
     @GetMapping("prompt")
     public String getProductPage() {
         return "prompt";
@@ -32,7 +35,7 @@ public class AiAssistantsController {
     @GetMapping("")
     public ResponseEntity getAssistant() {
         try {
-            AssistantDto assistantInfo = openAiService.getAssistantInfo(ASSISTANT_ID);
+            com.example.chatbot.dto.AssistantDto assistantInfo = openAiService.getAssistantInfo(ASSISTANT_ID);
             return ResponseEntity
                     .ok(assistantInfo);
         }catch (Exception e) {
@@ -47,15 +50,69 @@ public class AiAssistantsController {
         try {
             String newPrompt = data.get("prompt");
             log.info("Received new prompt: {}", newPrompt);
-            String model = "gpt-4o-mini";
 
-            boolean updateSuccess = openAiService.updateAssistantInstructions(model, newPrompt);
+            boolean updateSuccess = openAiService.updateAssistantInstructions(AI_MODEL, newPrompt);
 
             if (!updateSuccess) throw new RuntimeException("프롬프트 업데이트를 실패하였습니다.");
 
-            AssistantDto assistantInfo = openAiService.getAssistantInfo(ASSISTANT_ID);
+            com.example.chatbot.dto.AssistantDto assistantInfo = openAiService.getAssistantInfo(ASSISTANT_ID);
 
             return ResponseEntity.ok(assistantInfo);
+        } catch (Exception e) {
+            log.error("Error updating prompt", e);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+    }
+    @PostMapping("/prompt")
+    public ResponseEntity<?> addPrompt(@RequestBody Map<String, String> data) {
+        try {
+            String title = data.get("title");
+            String description = data.get("description");
+
+            log.info("{} {}",title,description);
+
+            assistantsService.savePrompt(title,description);
+
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            log.error("Error updating prompt", e);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+    }
+
+    @GetMapping("/prompts")
+    public ResponseEntity<?> getPrompts() {
+        try {
+
+            List<AssistantDto> assistantDtos = assistantsService.getAll();
+
+            return ResponseEntity.ok(assistantDtos);
+        } catch (Exception e) {
+            log.error("Error updating prompt", e);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+    }
+    @DeleteMapping("/prompts/{id}")
+    public ResponseEntity<?> deletePrompt(@PathVariable String id) {
+        try {
+
+            assistantsService.deletePrompt(id);
+
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            log.error("Error updating prompt", e);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+    }
+
+    @PostMapping("/prompts/apply/{id}")
+    public ResponseEntity<?> applyPrompt(@PathVariable String id) {
+        try {
+
+            AssistantDto assistantDto = assistantsService.getPromptDto(id);
+            openAiService.updateAssistantInstructions(assistantDto.getModel(), assistantDto.getPrompt());
+
+            return ResponseEntity.ok().build();
         } catch (Exception e) {
             log.error("Error updating prompt", e);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();

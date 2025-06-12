@@ -70,17 +70,22 @@
                                     <i class="fas fa-table me-1"></i>
                                     프롬프트
                                 </div>
-                            </div>
+                                <button class="btn btn-primary mx-lg-1 btn-sm" id="addModalButton" onclick="showAddModal()">등록</button>
 
+                            </div>
                             <div class="card m-3">
                                 <div class="form-group d-flex flex-column align-items-center m-4">
+                                    <span>
+                                        <h3>현재 적용된 프롬프트</h3>
+                                    </span>
                                     <textarea
                                             class="form-control form-control-sm mb-3"
                                             id="instructionsTextarea"
                                             rows="4"
                                             placeholder="프롬프트를 입력하세요"
+                                            readonly
                                             style="resize: none; min-height: 450px; max-height: 40vh; width: 60%;"></textarea>
-                                    <button class="btn btn-success mx-auto" id="saveButton" type="button" onclick="save()">저장</button>
+<!--                                    <button class="btn btn-success mx-auto" id="saveButton" type="button" onclick="save()">저장</button>-->
                                 </div>
                             </div>
 
@@ -100,57 +105,18 @@
                     <div class="modal-dialog">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h6 class="modal-title" id="addModalLabel">매물등록</h6>
+                                <h6 class="modal-title" id="addModalLabel">프롬프트 등록</h6>
                             </div>
                             <div class="modal-body">
-                                <div class="form-group mb-3">
-                                    <label>이미지 입력 방법:</label>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="imageInputType" id="imageUrlOption" value="url" checked>
-                                        <label class="form-check-label" for="imageUrlOption">이미지 URL</label>
+                                <label for="addPromptTitle">제목:</label>
+                                <input type="text" class="form-control mb-3" id="addPromptTitle">
 
-                                    </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="imageInputType" id="imageFileOption" value="file">
-                                        <label class="form-check-label" for="imageFileOption">이미지 파일</label>
-                                    </div>
-                                </div>
-                                <!-- 이미지 URL 입력 -->
-                                <div class="form-group mb-3" id="imageUrlGroup">
-                                    <label for="addProductImageUrl">이미지 URL:</label>
-                                    <input type="text" class="form-control" id="addProductImageUrl">
-                                </div>
-
-                                <!-- 이미지 파일 입력 -->
-                                <div class="form-group mb-3" id="imageFileGroup" style="display: none;">
-                                    <label for="addProductImageFile">이미지 파일:</label>
-                                    <input type="file" class="form-control" id="addProductImageFile" accept=".jpg, .jpeg, .png">
-                                </div>
-                                <label for="addProductRank">노출순위:</label>
-                                <input type="text" class="form-control mb-3 number-input" id="addProductRank">
-
-                                <label for="addProductLink">상품명:</label>
-                                <input type="text" class="form-control mb-3" id="addProductName">
-
-                                <label for="addProductPrice">판매가(원):</label>
-                                <input type="text" class="form-control mb-3 number-input" id="addProductPrice">
-
-                                <label for="addDiscountRate">할인율(%):</label>
-                                <input type="text" class="form-control mb-3 number-input" id="addDiscountRate">
-
-                                <label for="addDiscountPrice">할인가(원):</label>
-                                <input type="text" class="form-control mb-3 number-input" id="addDiscountPrice">
-
-                                <label for="addProductLink">링크:</label>
-                                <input type="text" class="form-control mb-3" id="addProductLink">
-
-                                <label for="addProductMemo">설명:</label>
-                                <textarea class="form-control mb-3 no-resize" id="addProductMemo" rows="4"></textarea>
-
+                                <label for="addPromptDescription">내용:</label>
+                                <textarea class="form-control mb-3 no-resize" id="addPromptDescription" rows="10"></textarea>
                             </div>
 
                             <div class="d-flex align-items-center justify-content-center mt-3 mb-3 gap-3">
-                                <button type="button" id="addProductButton" class="btn btn-primary">등록</button>
+                                <button type="button" id="addProductButton" class="btn btn-primary" onclick="addPrompt()">등록</button>
                                 <button type="button" class="btn btn-danger" data-bs-dismiss="modal">취소</button>
                             </div>
                         </div>
@@ -246,6 +212,6 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js" crossorigin="anonymous"></script>
         <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js" crossorigin="anonymous"></script>
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-        <script th:src="@{/js/view/prompt/prompt.js}"></script>
+        <script th:src="@{/js/view/assistants/prompt.js}"></script>
     </body>
 </html>

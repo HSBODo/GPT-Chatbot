@@ -33,6 +33,9 @@ public class OpenAiServiceImpl implements OpenAiService {
 //    private final String ASSISTANT_ID = "asst_s9UCWodjOKCDMnkydM3Brd0T"; // 비앤빛
     @Value("${openai.assistants.id}")
     private String ASSISTANT_ID;
+
+    @Value("${openai.model}")
+    private String AI_MODEL;
     // 생성자 또는 @PostConstruct에서 PATCH 가능한 RestTemplate 초기화
     public OpenAiServiceImpl() {
         this.restTemplate = createPatchSupportingRestTemplate();

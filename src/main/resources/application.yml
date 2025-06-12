@@ -51,6 +51,7 @@ logging:
           jdbc:
             bind: TRACE
 openai:
+  model: gpt-4o-mini
   #  key: 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
   key: ${OPENAI_API_KEY}
   assistants:
