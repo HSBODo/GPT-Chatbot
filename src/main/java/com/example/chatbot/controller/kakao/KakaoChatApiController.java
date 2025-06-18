@@ -1,5 +1,6 @@
 package com.example.chatbot.controller.kakao;
 
+import com.example.chatbot.annotation.PassAuth;
 import com.example.chatbot.common.service.OpenAiService;
 import com.example.chatbot.common.service.RedisService;
 import com.example.chatbot.dto.*;
@@ -30,6 +31,7 @@ public class KakaoChatApiController {
     private final OpenAiService openAiService;
     private final RedisService redisService;
 
+    @PassAuth
     @PostMapping("")
     public ResponseEntity fallBack(@RequestBody Map<String,String> request) {
         final String userKey = request.get("userKey");
