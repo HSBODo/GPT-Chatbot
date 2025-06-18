@@ -13,10 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -32,15 +29,24 @@ public class KakaoChatApiController {
     private final ChatBotExceptionResponse chatBotExceptionResponse = new ChatBotExceptionResponse();
     private final OpenAiService openAiService;
     private final RedisService redisService;
+    private final String TOKEN_1 = "3e8f1f78-9c34-41de-b59a-8a18b5a2a1ef";
 
     @PassAuth
     @PostMapping("")
-    public ResponseEntity fallBack(@RequestBody Map<String,String> request) {
+    public ResponseEntity getGptResponse(@RequestBody Map<String,String> request, @RequestHeader("Authorization") String authorizationHeader) {
+        final String token = authorizationHeader.replace("Bearer ", "").trim();
         final String userKey = request.get("userKey");
         final String utterance = request.get("utterance");
         final String redisRunKey = userKey + ":runId";
         final int pollingIntervalMs = 100;
         final int maxWaitMs = 2000;
+
+        if (!token.equals(TOKEN_1)) {
+            Map<String, String> response = new LinkedHashMap<>();
+            response.put("code", "401");
+            response.put("message", "인증 실패: 유효하지 않은 토큰입니다.");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+        }
 
         try {
 
