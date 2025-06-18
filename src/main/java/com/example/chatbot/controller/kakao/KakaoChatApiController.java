@@ -43,6 +43,7 @@ public class KakaoChatApiController {
         final int maxWaitMs = 2000;
 
         try {
+
             log.info("[GPT 요청] userKey: {}, utterance: {}", userKey, utterance);
 
             String threadId = getOrCreateThreadId(userKey);

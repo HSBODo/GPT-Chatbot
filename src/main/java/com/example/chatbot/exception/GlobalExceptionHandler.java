@@ -23,7 +23,7 @@ public class GlobalExceptionHandler {
         log.error("******* exceptionHandler catch = {} *******", e.getMessage(), e);
 
         // 특정 경로(API 요청)일 경우 ResponseEntity 반환
-        if (requestUri.startsWith("/chatbot")) {
+        if (requestUri.startsWith("/v1/chatbot")) {
             Map<String,String> response = new LinkedHashMap<>();
             response.put("code", "500");
             response.put("message", "요청 JSON을 확인해주세요.");
