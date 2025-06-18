@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 @Slf4j
@@ -23,7 +24,7 @@ public class GlobalExceptionHandler {
 
         // 특정 경로(API 요청)일 경우 ResponseEntity 반환
         if (requestUri.startsWith("/chatbot")) {
-            Map<String,String> response = new HashMap<>();
+            Map<String,String> response = new LinkedHashMap<>();
             response.put("code", "500");
             response.put("message", "요청 JSON을 확인해주세요.");
 

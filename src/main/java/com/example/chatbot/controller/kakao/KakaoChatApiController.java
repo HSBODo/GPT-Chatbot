@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.*;
@@ -78,7 +79,7 @@ public class KakaoChatApiController {
             OpenAiMessageResponse message = openAiService.getMessage(threadId);
             String result = extractAiResponse(message);
 
-            Map<String,String> response = new HashMap<>();
+            Map<String,String> response = new LinkedHashMap<>();
             response.put("code", "200");
             response.put("message", "정상처리");
             response.put("result", result);
@@ -86,7 +87,7 @@ public class KakaoChatApiController {
 
         } catch (Exception e) {
             log.error("[GPT 요청] 처리 중 예외 발생: {}", e.getMessage(), e);
-            Map<String,String> response = new HashMap<>();
+            Map<String,String> response = new LinkedHashMap<>();
             response.put("code", "500");
             response.put("message", "관리자에게 문의해주세요.");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
