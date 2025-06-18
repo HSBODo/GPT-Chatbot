@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.*;
@@ -77,12 +78,19 @@ public class KakaoChatApiController {
             OpenAiMessageResponse message = openAiService.getMessage(threadId);
             String result = extractAiResponse(message);
 
-            return ResponseEntity.ok(result);
+            Map<String,String> response = new HashMap<>();
+            response.put("code", "200");
+            response.put("message", "정상처리");
+            response.put("result", result);
+            return ResponseEntity.ok(response);
 
         } catch (Exception e) {
             log.error("[GPT 요청] 처리 중 예외 발생: {}", e.getMessage(), e);
+            Map<String,String> response = new HashMap<>();
+            response.put("code", "500");
+            response.put("message", "관리자에게 문의해주세요.");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("GPT 응답 처리 중 오류가 발생했습니다.");
+                    .body(response);
         } finally {
             redisService.deleteChatStatus(userKey);
             log.debug("[GPT 요청] 사용자 상태 정보 삭제 완료: {}", userKey);
